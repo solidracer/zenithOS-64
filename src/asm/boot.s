@@ -10,6 +10,12 @@ info:
     dd 0x0 ; height
     dd 0x0 ; ppsl
     dd 0x0 ; pixel_format
+    align 8
+global memmap
+memmap:
+    dq 0x0
+    dq 0x0
+    dq 0x0
 
 section .text
 global _start

@@ -11,6 +11,7 @@
 #include "ps2.h"
 
 extern zenith_boot_info_t info;
+extern zenith_memory_map_t memmap;
 
 static const char *logo =
 "+==============================================================================+\n"
@@ -42,7 +43,17 @@ void kmain(void) {
     init_term(PACK_COLOR(170, 170, 170), 0x0);
     asm volatile("sti");
 
-    term_printf("%s\nWelcome to \ewzen\x18thOS!\en\nresolution: %dx%d (characters)\nresolution: %d (%d) x %d (pixels)\narch: x86-64\n\nengineered with chaos by \ewsolidracer\en\n\n", logo, term.maxx, term.maxy, framebuffer.width, framebuffer.stride, framebuffer.height);
+    uint64_t mem = 0;
+
+    for (unsigned int i = 0;i<memmap.entries;i++) {
+        efi_memory_descr_t *entry = (efi_memory_descr_t*)(TOADDR(memmap.map) + i * memmap.desc_size);
+        if (entry->type == 7)
+            mem += entry->numpage * 0x1000;
+    }
+
+    mem /= 1024 * 1024;
+
+    term_printf("%s\nWelcome to \ewzen\x18thOS!\en\nresolution: %dx%d (characters)\nresolution: %d (%d) x %d (pixels)\nusable memory: %u MiB\narch: x86-64\n\nengineered with chaos by \ewsolidracer\en\n\n", logo, term.maxx, term.maxy, framebuffer.width, framebuffer.stride, framebuffer.height, mem);
 
     term_printf("%s ", SHELL_PROMPT);
     DRAW_CURSOR();
