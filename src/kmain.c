@@ -44,11 +44,9 @@ void kmain(void) {
 
     term_printf("%s\nWelcome to \ewzen\x18thOS!\en\nresolution: %dx%d (characters)\nresolution: %d (%d) x %d (pixels)\narch: x86-64\n\nengineered with chaos by \ewsolidracer\en\n\n", logo, term.maxx, term.maxy, framebuffer.width, framebuffer.stride, framebuffer.height);
 
-    beep(600, 300);
-
     term_printf("%s ", SHELL_PROMPT);
     DRAW_CURSOR();
-    char buffer[128];
+    char buffer[77];
     int i = 0;
     for (;;) {
         uint16_t k;
@@ -56,8 +54,8 @@ void kmain(void) {
             asm volatile("hlt");
         if (!(k & RELEASE_MASK)) {
             ERASE_CURSOR();
-            if (k == KEY_ENTER) {
-                buffer[i] = 0;
+            if (k == KEY_ENTER || k == KEY_KPENTER) {
+                buffer[i] = '\0';
                 term_putc('\n');
                 if (i == 5 && !memcmp(buffer, "clear", 5))
                     term_clear();
@@ -73,27 +71,21 @@ void kmain(void) {
                     sleep(1000);
                 else if (i == 4 && !memcmp(buffer, "help", 4))
                     term_printf("minimal shell for zenithOS\ncommands: clear, info, reset, echo, help, beep, sleep\n\nwritten by \ewsolidracer\en\n");
-                else {
-                    if (i > 0) {
-                        term_printf("\ererror:\en unknown command `\ew%s\en'\n", buffer);
-                        beep(200, 100);
-                    }
+                else if (i > 0) {
+                    term_printf("\ererror:\en unknown command `\ew%s\en'\n", buffer);
+                    beep(200, 100);
                 }
                 i = 0;
                 term_printf("%s ", SHELL_PROMPT);
             }
-            else if (k == KEY_BCKSPACE) {
-                /* dont erase the shell prompt, will make it better later */
-                if (term.x > 3 && i > 0) {
-                    i--;
-                    draw_glyph(' ', --term.x * FONT_WIDTH * FONT_SCALE, term.y * FONT_HEIGHT * FONT_SCALE, FONT_SCALE, term.fg, term.bg);
-                } else beep(200, 100);
+            else if (k == KEY_BCKSPACE && i > 0) {
+                i--;
+                draw_glyph(' ', --term.x * FONT_WIDTH * FONT_SCALE, term.y * FONT_HEIGHT * FONT_SCALE, FONT_SCALE, term.fg, term.bg);
             }
-            else if (i < 127 && k < 127 && k >= 32) {
+            else if (i < 76 && k < 127 && k >= 32) {
                 buffer[i++] = k;
                 term_putc(k);
             }
-            else beep(200, 100);
             DRAW_CURSOR();
         }
     }
