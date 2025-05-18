@@ -123,6 +123,31 @@ static const unsigned char set1_ext[] = {
     [0x1C] = KEY_KPENTER
 };
 
+/* a few helper functions */
+
+static void wait_output_full(void) {
+    while (!(inb(0x64) & 0x01)) asm volatile("nop");
+}
+
+static void wait_input_empty(void) {
+    while (inb(0x64) & 0x02) asm volatile("nop");
+}
+
+static uint8_t read_data(void) {
+    wait_output_full();
+    return inb(PS2_DAT);
+}
+
+static void flush(void) {
+    while (inb(PS2_CMD) & 0x01)
+        UNUSED(inb(PS2_DAT));
+}
+
+static void write_data(uint16_t port, uint8_t data) {
+    wait_input_empty();
+    outb(port, data);
+}
+
 __attribute__((interrupt, target("general-regs-only")))
 void keyboard_handler(void *arg) {
     UNUSED(arg);
@@ -147,7 +172,12 @@ void keyboard_handler(void *arg) {
         
         if (!key)
             goto end;
-        else if (key == KEY_CAPSLOCK) capslock ^= !release;
+        else if (key == KEY_CAPSLOCK) {
+            capslock ^= !release;
+            write_data(PS2_DAT, 0xED);
+            if (read_data() == 0xFA)
+                write_data(PS2_DAT, (capslock & 1) << 2);
+        }
         else if (key == KEY_LSHIFT) lshift = !release;
         else if (key == KEY_RSHIFT) rshift = !release;
 
@@ -163,31 +193,6 @@ void keyboard_handler(void *arg) {
     }
 
     send_eoi_pic(1);
-}
-
-/* a few helper functions */
-
-static void wait_output_full(void) {
-    while (!(inb(0x64) & 0x01)) asm volatile("nop");
-}
-
-static void wait_input_empty(void) {
-    while (inb(0x64) & 0x02) asm volatile("nop");
-}
-
-static uint8_t read_data(void) {
-    wait_output_full();
-    return inb(PS2_DAT);
-}
-
-static void flush(void) {
-    while (inb(PS2_CMD) & 0x01)
-        UNUSED(inb(PS2_DAT));
-}
-
-static void write_data(uint16_t port, uint8_t data) {
-    wait_input_empty();
-    outb(port, data);
 }
 
 int init_ps2(void) {
