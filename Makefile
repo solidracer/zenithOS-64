@@ -6,7 +6,7 @@ cflags = -ffreestanding -fno-stack-protector -fno-strict-aliasing -I./include -W
 ldflags = -nostdlib -T linker.ld
 asflags = -g
 
-bootflags = -enable-kvm -cpu host -m 3G -no-reboot -audiodev pa,id=speaker -machine pcspk-audiodev=speaker
+bootflags = -enable-kvm -cpu host -m 8G -no-reboot -audiodev pa,id=speaker -machine pcspk-audiodev=speaker
 
 target = build/kernel.elf
 

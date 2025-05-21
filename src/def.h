@@ -9,6 +9,7 @@
 #define ALIGNED(x) __attribute__((aligned(x)))
 #define UNUSED(x) ((void)(x))
 #define ALIGN(mem, align) ((mem + align - 1) & ~(align-1))
+#define ALIGND(mem, align) ((mem) & ~((align) - 1))
 #define TOADDR(x) ((size_t)(x))
 #define TOPTR(x) ((void*)(size_t)(x))
 

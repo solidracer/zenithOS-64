@@ -8,7 +8,8 @@ flush_gdt:
 
     lgdt [GDTR]
     push 0x08
-    push .reload_cs
+    lea rax, [rel .reload_cs]
+    push rax
     retfq
 
 .reload_cs:
