@@ -219,6 +219,12 @@ int init_ps2(void) {
     if (read_data() != 0x00)
         return 1;
 
+    write_data(PS2_DAT, 0xFF);
+    if (read_data() != 0xFA)
+        return 1;
+    if (read_data() != 0xAA)
+        return 1;
+
     write_data(PS2_DAT, 0xF6);
     if (read_data() != 0xFA)
         return 1;
