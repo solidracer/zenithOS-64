@@ -16,6 +16,10 @@ SECTIONS
 	.boot.data ALIGN(4K) : 
 	{
 		*(.boot.data)
+	}
+
+	.boot.bss ALIGN(4K) (NOLOAD) : 
+	{
 		*(.boot.bss)
 	}
 
@@ -28,19 +32,16 @@ SECTIONS
 		*(.text*)
 	}
 
-	/* Read-only data. */
 	.rodata ALIGN(4K) : AT(ADDR(.rodata) - 0xFFFFFFFF80000000)
 	{
 		*(.rodata*)
 	}
 
-	/* Read-write data (initialized) */
 	.data ALIGN(4K) : AT(ADDR(.data) - 0xFFFFFFFF80000000)
 	{
 		*(.data*)
 	}
 
-	/* Read-write data (uninitialized) and stack */
 	.bss ALIGN(4K) : AT(ADDR(.bss) - 0xFFFFFFFF80000000)
 	{
 		*(COMMON)
