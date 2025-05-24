@@ -44,15 +44,27 @@ void term_putc(unsigned char c) {
     if (isesc) {
         switch(c) {
             case 'r': {
-                term.fg = PACK_COLOR(255, 0, 0);
+                term.fg = PACK_COLOR(255, 85, 85);
                 break;
             }
             case 'g': {
-                term.fg = PACK_COLOR(0, 255, 0);
+                term.fg = PACK_COLOR(85, 255, 85);
+                break;
+            }
+            case 'y': {
+                term.fg = PACK_COLOR(255, 255, 85);
+                break;
+            }
+            case 'm': {
+                term.fg = PACK_COLOR(255, 40, 255);
                 break;
             }
             case 'b': {
-                term.fg = PACK_COLOR(0, 0, 255);
+                term.fg = PACK_COLOR(85, 85, 255);
+                break;
+            }
+            case 'a': {
+                term.fg = PACK_COLOR(85, 255, 255);
                 break;
             }
             case 'n': {
@@ -122,13 +134,13 @@ static void print_hex(size_t n) {
         return;
     }
     
-    unsigned int div = 1;
+    unsigned long div = 1;
 
     while (n / div >= 16)
         div *= 16;
 
     while (div != 0) {
-        unsigned int d = n / div;
+        unsigned long d = n / div;
         term_putc(digits[d]);
         n %= div;
         div /= 16;

@@ -30,6 +30,8 @@ static const char *logo =
 #define DRAW_CURSOR() draw_glyph(0xFF, term.x * FONT_WIDTH * FONT_SCALE, term.y * FONT_HEIGHT * FONT_SCALE, FONT_SCALE, term.fg, term.bg);
 #define ERASE_CURSOR() draw_glyph(' ', term.x * FONT_WIDTH * FONT_SCALE, term.y * FONT_HEIGHT * FONT_SCALE, FONT_SCALE, term.fg, term.bg);
 
+extern char high_entry[];
+
 void kmain(void) {
     if (info.pixel_format != PF_BGRR_32BBP)
         return;
@@ -80,8 +82,10 @@ void kmain(void) {
                     term_printf("%s\n", i>5?buffer + 5 : buffer + 4);
                 else if (i == 5 && !memcmp(buffer, "sleep", 5))
                     sleep(1000);
+                else if (i == 3 && !memcmp(buffer, "mem", 3))
+                    term_printf("entry: \ea%p\en\nkmain: \eg%p\en\nframebuffer: \ey%p\en\ninfo (low): \em%p\en\n", high_entry, kmain, framebuffer.fb, &info);
                 else if (i == 4 && !memcmp(buffer, "help", 4))
-                    term_printf("minimal shell for zenithOS\ncommands: clear, info, reset, echo, help, beep, sleep\n\nwritten by \ewsolidracer\en\n");
+                    term_printf("minimal shell for zenithOS\ncommands: clear, info, reset, echo, help, beep, sleep, mem\n\nwritten by \ewsolidracer\en\n");
                 else if (i > 0) {
                     term_printf("\ererror:\en unknown command `\ew%s\en'\n", buffer);
                     beep(200, 100);

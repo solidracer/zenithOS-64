@@ -1,51 +1,54 @@
-/* from OSDev wiki */
-
-/* The bootloader will look at this image and start execution at the symbol
-   designated as the entry point. */
 ENTRY(_start)
 
-/* Tell where the various sections of the object files will be put in the final
-   kernel image. */
 SECTIONS
 {
-	/* It used to be universally recommended to use 1M as a start offset,
-	   as it was effectively guaranteed to be available under BIOS systems.
-	   However, UEFI has made things more complicated, and experimental data
-	   strongly suggests that 2M is a safer place to load. In 2016, a new
-	   feature was introduced to the multiboot2 spec to inform bootloaders
-	   that a kernel can be loaded anywhere within a range of addresses and
-	   will be able to relocate itself to run from such a loader-selected
-	   address, in order to give the loader freedom in selecting a span of
-	   memory which is verified to be available by the firmware, in order to
-	   work around this issue. This does not use that feature, so 2M was
-	   chosen as a safer option than the traditional 1M. */
 	. = 2M;
 
-	.text BLOCK(4K) : ALIGN(4K)
+    __start = .;
+
+    .boot : 
+    {
+        *(.boot)
+        *(.boot.text)
+        *(.boot.rodata)
+    }
+
+    .boot.data ALIGN(4K) : 
+    {
+        *(.boot.data)
+        *(.boot.bss)
+    }
+
+    __physend = .;
+
+    . += 0xFFFFFFFF80000000;
+
+	.text ALIGN(4K) : AT(ADDR(.text) - 0xFFFFFFFF80000000)
 	{
-		KEEP(*(.boot))
 		*(.text*)
 	}
 
 	/* Read-only data. */
-	.rodata BLOCK(4K) : ALIGN(4K)
+	.rodata ALIGN(4K) : AT(ADDR(.rodata) - 0xFFFFFFFF80000000)
 	{
 		*(.rodata*)
 	}
 
 	/* Read-write data (initialized) */
-	.data BLOCK(4K) : ALIGN(4K)
+	.data ALIGN(4K) : AT(ADDR(.data) - 0xFFFFFFFF80000000)
 	{
 		*(.data*)
 	}
 
 	/* Read-write data (uninitialized) and stack */
-	.bss BLOCK(4K) : ALIGN(4K)
+	.bss ALIGN(4K) : AT(ADDR(.bss) - 0xFFFFFFFF80000000)
 	{
 		*(COMMON)
 		. = ALIGN(16);
 		*(.bss*)
 	}
+
+    __end = . - 0xFFFFFFFF80000000;
 
 	/DISCARD/ : {
 		*(.comment*)

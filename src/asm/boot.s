@@ -17,10 +17,16 @@ memmap:
     dq 0x0
     dq 0x0
 
-section .text
+section .boot.text
 global _start
 _start:
     cli
+    mov rsp, stack - 0xFFFFFFFF80000000
+    extern low_entry
+    call low_entry
+section .text
+global high_entry
+high_entry:
     mov rsp, stack
     extern kmain
     call kmain
@@ -31,4 +37,4 @@ _start:
 section .bss
     align 16
     resb 0x4000
-    stack:
+stack:
