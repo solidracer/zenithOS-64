@@ -4,24 +4,24 @@ SECTIONS
 {
 	. = 2M;
 
-    __start = .;
+	__start = .;
 
-    .boot : 
-    {
-        *(.boot)
-        *(.boot.text)
-        *(.boot.rodata)
-    }
+	.boot : 
+	{
+		*(.boot)
+		*(.boot.text)
+		*(.boot.rodata)
+	}
 
-    .boot.data ALIGN(4K) : 
-    {
-        *(.boot.data)
-        *(.boot.bss)
-    }
+	.boot.data ALIGN(4K) : 
+	{
+		*(.boot.data)
+		*(.boot.bss)
+	}
 
-    __physend = .;
+	__physend = .;
 
-    . += 0xFFFFFFFF80000000;
+	. += 0xFFFFFFFF80000000;
 
 	.text ALIGN(4K) : AT(ADDR(.text) - 0xFFFFFFFF80000000)
 	{
@@ -48,7 +48,7 @@ SECTIONS
 		*(.bss*)
 	}
 
-    __end = . - 0xFFFFFFFF80000000;
+	__end = . - 0xFFFFFFFF80000000;
 
 	/DISCARD/ : {
 		*(.comment*)
